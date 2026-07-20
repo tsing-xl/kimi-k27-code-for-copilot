@@ -39,8 +39,7 @@ export const WELCOME_SHOWN_KEY = 'kimi-copilot.welcomeShown';
 // ---- Walkthrough ----
 
 /** Walkthrough contribution ID. */
-/** Publisher kept from original project. */
-export const WALKTHROUGH_ID = 'Vizards.kimi-k27-code-for-copilot#kimiGettingStarted';
+export const WALKTHROUGH_ID = 'tsing-xl.kimi-k27-code-for-copilot#kimiGettingStarted';
 
 // ---- Model registry ----
 
@@ -82,6 +81,7 @@ export const MODELS: ModelDefinition[] = [
 		pricing: {
 			CNY: { input: 4, output: 12 },
 		},
-		priceCategory: 'low',
+		/** Turn priceCategory to 'medium'. */
+		priceCategory: 'medium',
 	},
 ];

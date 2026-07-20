@@ -148,6 +148,42 @@
 			"type": "shell",
 			"command": "npm run compile",
 			"isBackground": false
+		},
+		{
+			"label": "package-vsix",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix2",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix3",
+			"type": "shell",
+			"command": "npm run compile && npx vsce package --no-yarn --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix4",
+			"type": "shell",
+			"command": "npm run compile; npx vsce package --no-dependencies --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix-final",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix-ok",
+			"type": "shell",
+			"command": "mkdir dist; npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
+			"isBackground": false
 		}
 	]
 }

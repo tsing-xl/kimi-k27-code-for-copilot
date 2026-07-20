@@ -43,8 +43,6 @@ const zh: Translations = {
 	'vision.nativeHint': '直接拖入图片或视频即可',
 	'vision.action.configureProxy': '配置视觉代理',
 	'vision.panel.title': 'DeepSeek 视觉代理',
-	'vision.panel.description':
-		'配置一个支持图片输入的模型，用来先把图片转换成文字描述，再把描述随消息发送给 DeepSeek。图片本身不会发送给 DeepSeek。',
 	'vision.panel.source.vscodeLm': 'VS Code 模型',
 	'vision.panel.source.apiEndpoint': 'API 端点',
 	'vision.panel.field.source': '视觉代理来源',
@@ -81,7 +79,7 @@ const zh: Translations = {
 	'vision.panel.cost.category.low': '低费用',
 	'vision.panel.cost.category.medium': '中等费用',
 	'vision.panel.cost.category.high': '高费用',
-	'vision.panel.cost.category.veryHigh': '很高费用',
+	'vision.panel.cost.category.veryHigh': '极高费用',
 	'vision.panel.cost.category.named': '{0} 费用',
 	'vision.panel.status.vscodeLmSelected': '已选择 VS Code 语言模型。',
 	'vision.panel.status.apiKeySet': '已设置 API Key。',
@@ -152,10 +150,10 @@ const zh: Translations = {
 		'Kimi 单次 tools 请求最多支持 {0} 个 functions，当前请求包含 {1} 个。请先用 VS Code 的 Configure Tools 关闭不常用的工具；如果正在使用实验性稳定工具列表设置，请关闭它。',
 	'request.preflightRoundLimitExceeded':
 		'实验性稳定工具列表设置已尝试 {0} 轮，仍无法得到稳定的已启用工具列表。请关闭该实验性设置，或先用 VS Code 的 Configure Tools 关闭不常用的工具。',
-	'notice.visionProxyMissing': '⚠️ 视觉代理不可用，DeepSeek 无法看到图片。[配置视觉代理]({0})',
-	'notice.visionProxyFailure': '**⚠️ {0}**\\\n\\\n**{1} · {2}**',
+	'notice.visionProxyMissing': 'Attention: 视觉代理不可用，Kimi 无法看到图片。[配置视觉代理]({0})',
+	'notice.visionProxyFailure': '**Attention: {0}**\\\n\\\n**{1} · {2}**',
 	'notice.toolDrift':
-		'⚠️ 工具列表不稳定，缓存命中率可能下降。[了解更多](https://github.com/Vizards/kimi-k27-code-for-copilot/blob/main/docs/notices/tool-drift.zh.md)',
+		'Attention: 工具列表不稳定，缓存命中率可能下降。[了解更多](https://github.com/Vizards/kimi-k27-code-for-copilot/blob/main/docs/notices/tool-drift.zh.md)',
 
 	// Errors
 	'error.http.400': '[{0}] 请求体格式错误。请根据错误信息提示修改请求体。',
@@ -231,8 +229,6 @@ const en: Translations = {
 	'vision.proxyError': 'Vision proxy error:',
 	'vision.action.configureProxy': 'Configure Vision Proxy',
 	'vision.panel.title': 'DeepSeek Vision Proxy',
-	'vision.panel.description':
-		'Configure a vision-capable model to turn image attachments into text before DeepSeek receives the request. DeepSeek receives the description, not the original images.',
 	'vision.panel.source.vscodeLm': 'VS Code model',
 	'vision.panel.source.apiEndpoint': 'API endpoint',
 	'vision.panel.field.source': 'Vision proxy source',
@@ -355,10 +351,10 @@ const en: Translations = {
 	'request.preflightRoundLimitExceeded':
 		'Experimental tool-list stabilization tried {0} rounds but still could not get a stable enabled-tools list. Turn this experimental setting off, or use VS Code Configure Tools to disable tools you rarely use first.',
 	'notice.visionProxyMissing':
-		'⚠️ Vision Proxy is unavailable. DeepSeek cannot see images. [Configure Vision Proxy]({0})',
-	'notice.visionProxyFailure': '**⚠️ {0}**\\\n\\\n**{1} · {2}**',
+		'Attention: Vision Proxy is unavailable. DeepSeek cannot see images. [Configure Vision Proxy]({0})',
+	'notice.visionProxyFailure': '**Attention: {0}**\\\n\\\n**{1} · {2}**',
 	'notice.toolDrift':
-		'⚠️ Tool list is unstable; cache hit rate may drop. [Learn more](https://github.com/Vizards/kimi-k27-code-for-copilot/blob/main/docs/notices/tool-drift.en.md)',
+		'Attention: Tool list is unstable; cache hit rate may drop. [Learn more](https://github.com/Vizards/kimi-k27-code-for-copilot/blob/main/docs/notices/tool-drift.en.md)',
 
 	// Errors
 	'error.http.400':

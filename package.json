@@ -3,12 +3,12 @@
   "displayName": "Kimi K2.7 Code for Copilot Chat",
   "description": "Use Kimi K2.7 Code from the Copilot Chat model picker. Native vision, always-on thinking, agent tools — zero config, BYOK.",
   "icon": "resources/icon.png",
-  "version": "0.1.0",
-  "publisher": "Tsing.xl",
+  "version": "0.1.1",
+  "publisher": "tsing-xl",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Vizards/deepseek-v4-for-copilot"
+    "url": "https://github.com/tsing-xl/kimi-k27-code-for-copilot"
   },
   "engines": {
     "vscode": "^1.116.0",
@@ -176,7 +176,7 @@
   },
   "scripts": {
     "clean": "node -e \"require('node:fs').rmSync('out', { recursive: true, force: true, maxRetries: process.platform === 'win32' ? 10 : 0 })\"",
-    "vscode:prepublish": "bash .github/scripts/prepare-marketplace-readme.sh && npm run compile",
+    "vscode:prepublish": "npm run compile",
     "compile": "npm run clean && tsc -p ./",
     "watch": "npm run clean && tsc -watch -p ./",
     "lint": "oxlint",
