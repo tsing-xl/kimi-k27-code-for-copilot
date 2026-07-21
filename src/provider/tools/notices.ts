@@ -3,17 +3,12 @@ import { t } from '../../i18n';
 import {
 	TOOL_DRIFT_NOTICE_END,
 	TOOL_DRIFT_NOTICE_START,
-	VISION_PROXY_NOTICE_END,
-	VISION_PROXY_NOTICE_START,
 } from './consts';
 
 type LanguageModelChatRequestMessagePart =
 	vscode.LanguageModelChatRequestMessage['content'][number];
 
 let showLogsUrl = 'command:kimi-copilot.showLogs';
-
-// Legacy vision proxy URL — kept for compatibility, unused with Kimi native vision.
-const visionProxyConfigurationUrl = 'command:kimi-copilot.openSettings';
 
 export function setProviderNoticeShowLogsUrl(url: string): void {
 	showLogsUrl = url;
@@ -80,7 +75,6 @@ function stripProviderNotices(value: string): string {
 	let result = value;
 	for (const marker of [
 		{ start: TOOL_DRIFT_NOTICE_START, end: TOOL_DRIFT_NOTICE_END },
-		{ start: VISION_PROXY_NOTICE_START, end: VISION_PROXY_NOTICE_END },
 	]) {
 		result = stripProviderNotice(result, marker.start, marker.end);
 	}

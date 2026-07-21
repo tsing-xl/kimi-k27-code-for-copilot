@@ -2,20 +2,16 @@
 
 本项目 Fork 于 [deepseek-v4-for-copilot](https://github.com/Vizards/deepseek-v4-for-copilot)，将原项目的 DeepSeek V4 API 替换为 Kimi K2.7 Code API，并基于 Kimi 特性做了相应调整。
 
-## 修改内容
-
-以原项目 DeepSeek V4 架构为基础，做了以下改动：
-
 ### API 与模型
 
 - **API 端点**：`api.deepseek.com` → `api.moonshot.cn/v1`
 - **模型**：DeepSeek V4 Pro / Flash → Kimi K2.7 Code / Highspeed（高速版 ~180 tok/s）
 - **上下文窗口**：1M → 256K Token
-- **缓存计费**：`prompt_cache_hit/miss_tokens` → `cached_tokens`（Kimi 统一缓存字段）
+- **缓存计费**：`prompt_cache_hit/miss_tokens` → `cached_tokens`
 
 ### 视觉能力
 
-- **移除视觉代理子系统**（`src/provider/vision/`）：原项目通过其他模型代理实现图片描述，Kimi K2.7 Code 原生支持 `image_url` / `video_url` 输入
+- **移除视觉代理子系统**（`src/provider/vision/`）：Kimi K2.7 Code 原生支持 `image_url` / `video_url` 输入
 - 消息转换层（`convert.ts`）新增 `DataPart` → 多模态 `content` 数组的转换逻辑
 
 ### 思考模式
@@ -40,7 +36,5 @@
 
 MIT License，详见 [LICENSE](LICENSE)。
 本项目基于 [Vizards/deepseek-v4-for-copilot](https://github.com/Vizards/deepseek-v4-for-copilot)。
-
-## 其它
 
 本项目由 Deepseek V4 Pro 生成。

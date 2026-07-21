@@ -8,4 +8,4 @@ export type {
 	CacheDiagnosticsRun,
 	ReplayMarkerReportTrigger,
 } from './diagnostics';
-export { dumpDeepSeekRequest as dumpKimiRequest, dumpProviderInput, ensureRequestDumpRoot } from './dump';
+export { dumpKimiRequest, dumpProviderInput, ensureRequestDumpRoot } from './dump';

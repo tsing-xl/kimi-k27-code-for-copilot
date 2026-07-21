@@ -23,7 +23,7 @@
   "kimi-copilot.config.debugMode.metadata.label": "元数据",
   "kimi-copilot.config.debugMode.metadata.description": "隐私安全的元数据，可安全公开分享。使用 `Kimi K2.7 Code: 显示日志` 查看。",
   "kimi-copilot.config.debugMode.verbose.label": "详细",
-  "kimi-copilot.config.debugMode.verbose.description": "⚠️ 包含敏感的提示词内容，仅供本地调试。",
+  "kimi-copilot.config.debugMode.verbose.description": "Attention: 包含敏感的提示词内容，仅供本地调试。",
   "kimi-copilot.config.modelIdOverrides.description": "覆盖各 Kimi 模型实际使用的 API 模型 ID，默认使用官方 Kimi ID，仅在对接不同模型名称的第三方 API 时需要修改。",
   "kimi-copilot.config.modelIdOverrides.kimi-k2.7-code.description": "Kimi K2.7 Code 的 API 模型 ID。",
   "kimi-copilot.config.modelIdOverrides.kimi-k2.7-code-highspeed.description": "Kimi K2.7 Code 高速版的 API 模型 ID。"

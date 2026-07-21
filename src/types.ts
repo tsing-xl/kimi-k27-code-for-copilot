@@ -52,7 +52,7 @@ export interface KimiUsage {
 /**
  * Kimi K2.7 Code request body.
  *
- * Key differences from DeepSeek:
+ * Kimi K2.7 Code API differences from typical OpenAI-compatible endpoints:
  * - No temperature / top_p (fixed by API, cannot be overridden)
  * - tool_choice only supports 'auto' | 'none' (no 'required')
  * - thinking is always enabled (no need to pass explicitly)

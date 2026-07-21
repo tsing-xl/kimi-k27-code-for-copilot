@@ -3,10 +3,10 @@ import vscode from 'vscode';
 import { getDebugLoggingEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { logger } from '../../logger';
-import type { KimiMessage as DeepSeekMessage, KimiRequest as DeepSeekRequest, KimiTool as DeepSeekTool, KimiUsage as DeepSeekUsage } from '../../types';
+import type { KimiMessage, KimiRequest, KimiTool, KimiUsage } from '../../types';
 import { REPLAY_MARKER_MIME, parseFirstReplayMarker } from '../replay';
 import {
-	classifyKimiRequest as classifyDeepSeekRequest,
+	classifyKimiRequest,
 	formatModelFields,
 	formatRequestLogLine,
 	type RequestKind,
@@ -35,29 +35,12 @@ type VisionPipelineStats = {
 	invalidMarkerVisionMetadata: number;
 };
 
-// ---- Legacy type adapters for Kimi API compatibility ----
+// Kimi API uses a single `cached_tokens` field.
+// Compute cache hit/miss split inline where needed for diagnostics.
 
 /** Extract string content from KimiMessage (content can be string | KimiContentPart[]). */
-function msgText(msg: DeepSeekMessage): string {
+function msgText(msg: KimiMessage): string {
 	return typeof msg.content === 'string' ? msg.content : '';
-}
-
-/** Adapt KimiUsage.cached_tokens to legacy prompt_cache_hit/miss format for debug diagnostics. */
-function adaptUsage(u: DeepSeekUsage): DeepSeekUsage & { prompt_cache_hit_tokens: number; prompt_cache_miss_tokens: number } {
-	return {
-		...u,
-		prompt_cache_hit_tokens: u.cached_tokens ?? 0,
-		prompt_cache_miss_tokens: Math.max(0, (u.prompt_tokens ?? 0) - (u.cached_tokens ?? 0)),
-	};
-}
-
-/** Adapt KimiRequest (no thinking/reasoning_effort) to legacy format for debug. */
-function adaptRequest(r: DeepSeekRequest): DeepSeekRequest & { thinking: { type: string }; reasoning_effort: string | null } {
-	return {
-		...r,
-		thinking: { type: 'enabled' },
-		reasoning_effort: null,
-	} as DeepSeekRequest & { thinking: { type: string }; reasoning_effort: string | null };
 }
 
 const LARGE_MESSAGE_CHARS = 10_000;
@@ -115,7 +98,7 @@ export interface CacheTraceStats {
 
 export interface CacheTraceMessageSummary {
 	index: number;
-	role: DeepSeekMessage['role'];
+	role: KimiMessage['role'];
 	hash: string;
 	contentHash: string;
 	contentHeadHash: string;
@@ -207,7 +190,7 @@ export interface CacheTraceSystemPromptChange {
 }
 
 export interface BeginCacheDiagnosticsOptions {
-	request: DeepSeekRequest;
+	request: KimiRequest;
 	segment: ConversationSegment;
 	requestKind?: RequestKind;
 	vscodeModelId: string;
@@ -231,7 +214,7 @@ export interface CacheDiagnosticsRun {
 	onDone(info: CacheDiagnosticsDoneInfo): void;
 	onCancellationTokenRequested(): void;
 	onReplayMarkerReport(info: ReplayMarkerReportInfo): void;
-	onUsage(usage: DeepSeekUsage, charsPerToken: number): void;
+	onUsage(usage: KimiUsage, charsPerToken: number): void;
 }
 
 export type ReplayMarkerReportStatus = 'reported' | 'failed' | 'skipped';
@@ -377,7 +360,7 @@ class DefaultCacheDiagnosticsRecorder implements CacheDiagnosticsRecorder {
 	beginRequest(options: BeginCacheDiagnosticsOptions): CacheDiagnosticsRun {
 		const requestKind =
 			options.requestKind ??
-			classifyDeepSeekRequest({
+			classifyKimiRequest({
 				request: options.request,
 				inputMessages: options.inputMessages,
 			});
@@ -449,7 +432,7 @@ class DefaultCacheDiagnosticsRecorder implements CacheDiagnosticsRecorder {
 					` thinkingEffort=${options.thinkingEffort}` +
 					` maxTokens=${options.maxTokens ?? 'api-default'}` +
 					` inputMessages=${options.inputMessages.length}` +
-					` deepseekMessages=${options.request.messages.length}`,
+					` kimiMessages=${options.request.messages.length}`,
 			),
 		);
 		const hostPromptTrace = summarizeHostPromptTrace(options.inputMessages);
@@ -661,7 +644,7 @@ class ActiveCacheDiagnosticsRun implements CacheDiagnosticsRun {
 		this.recorder.rememberCacheTrace(this.snapshot);
 	}
 
-	onUsage(usage: DeepSeekUsage, charsPerToken: number): void {
+	onUsage(usage: KimiUsage, charsPerToken: number): void {
 		logUsage(usage, charsPerToken, this.usageLogContext, this.requestId);
 		if (this.resultComparison) {
 			const hitRate = getCacheHitRate(usage);
@@ -708,7 +691,7 @@ class NoopCacheDiagnosticsRun implements CacheDiagnosticsRun {
 
 	onReplayMarkerReport(_info: ReplayMarkerReportInfo): void {}
 
-	onUsage(usage: DeepSeekUsage, charsPerToken: number): void {
+	onUsage(usage: KimiUsage, charsPerToken: number): void {
 		logUsage(usage, charsPerToken, this.usageLogContext);
 	}
 }
@@ -840,30 +823,28 @@ function sanitizeLogValue(value: string): string {
 }
 
 function logUsage(
-	usage: DeepSeekUsage,
+	usage: KimiUsage,
 	charsPerToken: number,
 	context: UsageLogContext,
 	requestId?: number,
 ): void {
-	const u = adaptUsage(usage);
-	const cacheHit = u.prompt_cache_hit_tokens ?? 0;
-	const cacheMiss = u.prompt_cache_miss_tokens ?? 0;
+	const cacheHit = usage.cached_tokens ?? 0;
+	const cacheMiss = Math.max(0, (usage.prompt_tokens ?? 0) - cacheHit);
 	logger.info(
 		formatRequestLogLine(
 			context.requestKind,
 			`tokens${requestId ? ` #${requestId}` : ''}: ` +
 				formatModelFields(context.vscodeModelId, context.apiModelId) +
-				` prompt=${u.prompt_tokens} completion=${u.completion_tokens}` +
-				` | cache: hit=${cacheHit} miss=${cacheMiss} rate=${getCacheHitRate(u)}%` +
+				` prompt=${usage.prompt_tokens} completion=${usage.completion_tokens}` +
+				` | cache: hit=${cacheHit} miss=${cacheMiss} rate=${getCacheHitRate(usage)}%` +
 				` | chars/tok=${charsPerToken.toFixed(2)}`,
 		),
 	);
 }
 
-function getCacheHitRate(usage: DeepSeekUsage): string {
-	const u = adaptUsage(usage);
-	const cacheHit = u.prompt_cache_hit_tokens ?? 0;
-	const cacheMiss = u.prompt_cache_miss_tokens ?? 0;
+function getCacheHitRate(usage: KimiUsage): string {
+	const cacheHit = usage.cached_tokens ?? 0;
+	const cacheMiss = Math.max(0, (usage.prompt_tokens ?? 0) - cacheHit);
 	const cacheTotal = cacheHit + cacheMiss;
 	return cacheTotal > 0 ? ((cacheHit / cacheTotal) * 100).toFixed(0) : 'n/a';
 }
@@ -1196,9 +1177,9 @@ function getPartConstructorName(part: unknown): string {
 }
 
 export function createCacheTraceSnapshot(
-	request: DeepSeekRequest,
+	request: KimiRequest,
 	inputMessages: readonly vscode.LanguageModelChatRequestMessage[] = [],
-	requestKind: RequestKind = classifyDeepSeekRequest({ request, inputMessages }),
+	requestKind: RequestKind = classifyKimiRequest({ request, inputMessages }),
 ): CacheTraceSnapshot {
 	const toolsSerialized = stableStringify(request.tools ?? []);
 	const messageSummaries = summarizeMessages(request.messages);
@@ -1226,7 +1207,7 @@ export function createCacheTraceSnapshot(
 }
 
 function createRedactedComparisonInput(
-	request: DeepSeekRequest,
+	request: KimiRequest,
 	messageSummaries: CacheTraceMessageSummary[],
 	toolSummaries: CacheTraceToolSummary[],
 ): string {
@@ -1434,7 +1415,7 @@ export function getCacheTraceWarnings(snapshot: CacheTraceSnapshot): string[] {
 	}
 	if (snapshot.stats.missingToolReasoningMessages > 0) {
 		warnings.push(
-			`${snapshot.stats.missingToolReasoningMessages} assistant tool-call message(s) are missing marker-replayed reasoning_content; DeepSeek requires this in thinking tool-call histories and cache prefixes may drift.`,
+			`${snapshot.stats.missingToolReasoningMessages} assistant tool-call message(s) are missing marker-replayed reasoning_content; Kimi requires this in thinking tool-call histories and cache prefixes may drift.`,
 		);
 	}
 	if (snapshot.stats.missingPostToolCallReasoningMessages > 0) {
@@ -1625,7 +1606,7 @@ function formatContentSectionSummary(summary: CacheTraceContentSectionSummary | 
 	);
 }
 
-function summarizeMessages(messages: DeepSeekMessage[]): CacheTraceMessageSummary[] {
+function summarizeMessages(messages: KimiMessage[]): CacheTraceMessageSummary[] {
 	const summaries: CacheTraceMessageSummary[] = [];
 	let followsToolResult = false;
 	for (const [index, message] of messages.entries()) {
@@ -1640,7 +1621,7 @@ function summarizeMessages(messages: DeepSeekMessage[]): CacheTraceMessageSummar
 }
 
 function summarizeMessage(
-	message: DeepSeekMessage,
+	message: KimiMessage,
 	index: number,
 	followsToolResult: boolean,
 ): CacheTraceMessageSummary {
@@ -1806,7 +1787,7 @@ function getSafeSystemPromptSectionLabel(line: string): string | undefined {
 	return SAFE_SYSTEM_PROMPT_TAGS.has(tag) ? `tag:${tag}` : 'tag:other';
 }
 
-function summarizeTools(tools: DeepSeekTool[]): CacheTraceToolSummary[] {
+function summarizeTools(tools: KimiTool[]): CacheTraceToolSummary[] {
 	return tools.map((tool, index) => ({
 		index,
 		name: tool.function.name,
@@ -1816,7 +1797,7 @@ function summarizeTools(tools: DeepSeekTool[]): CacheTraceToolSummary[] {
 	}));
 }
 
-function summarizeStats(messages: DeepSeekMessage[], toolCount: number): CacheTraceStats {
+function summarizeStats(messages: KimiMessage[], toolCount: number): CacheTraceStats {
 	let userMessages = 0;
 	let assistantMessages = 0;
 	let toolMessages = 0;

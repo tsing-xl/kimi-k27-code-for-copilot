@@ -3,7 +3,7 @@
   "displayName": "Kimi K2.7 Code for Copilot Chat",
   "description": "Use Kimi K2.7 Code from the Copilot Chat model picker. Native vision, always-on thinking, agent tools — zero config, BYOK.",
   "icon": "resources/icon.png",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "publisher": "tsing-xl",
   "license": "MIT",
   "repository": {
@@ -182,8 +182,8 @@
     "lint": "oxlint",
     "format": "oxfmt --write src/",
     "format:check": "oxfmt --check src/",
-    "package": "vsce package --readme-path dist/README.marketplace.md -o dist/",
-    "login": "vsce login Vizards"
+    "package": "vsce package --readme-path README.md -o dist/",
+    "login": "vsce login tsing-xl"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",

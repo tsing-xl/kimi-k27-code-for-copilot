@@ -184,6 +184,12 @@
 			"type": "shell",
 			"command": "mkdir dist; npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.0.vsix",
 			"isBackground": false
+		},
+		{
+			"label": "package-vsix-0.1.2",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.2.vsix",
+			"isBackground": false
 		}
 	]
 }

@@ -23,7 +23,7 @@
   "kimi-copilot.config.debugMode.metadata.label": "Metadata",
   "kimi-copilot.config.debugMode.metadata.description": "Privacy-safe metadata. Safe to share publicly. View with `Kimi K2.7 Code: Show Logs`.",
   "kimi-copilot.config.debugMode.verbose.label": "Verbose",
-  "kimi-copilot.config.debugMode.verbose.description": "⚠️ Contains sensitive prompt content. For local debugging only.",
+  "kimi-copilot.config.debugMode.verbose.description": "Attention: Contains sensitive prompt content. For local debugging only.",
   "kimi-copilot.config.modelIdOverrides.description": "Override the API model ID sent for each Kimi model. Defaults are prefilled with official Kimi IDs; change them only when using a compatible third-party API that uses different model names.",
   "kimi-copilot.config.modelIdOverrides.kimi-k2.7-code.description": "API model ID for Kimi K2.7 Code",
   "kimi-copilot.config.modelIdOverrides.kimi-k2.7-code-highspeed.description": "API model ID for Kimi K2.7 Code (Highspeed)"

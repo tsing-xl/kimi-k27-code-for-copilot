@@ -14,13 +14,13 @@ interface CachedBalanceCurrency {
 	readonly baseUrl: string;
 }
 
-interface DeepSeekBalanceInfo {
+interface KimiBalanceInfo {
 	readonly currency?: unknown;
 	readonly total_balance?: unknown;
 	readonly topped_up_balance?: unknown;
 }
 
-interface DeepSeekBalanceResponse {
+interface KimiBalanceResponse {
 	readonly balance_infos?: unknown;
 }
 
@@ -64,7 +64,7 @@ export class BalanceCurrencyResolver {
 		const refresh = this.refreshFromBalance(controller, generation)
 			.catch((error) => {
 				if (!(isAbortError(error) && generation !== this.generation)) {
-					logger.warn('Failed to refresh DeepSeek balance currency', error);
+					logger.warn('Failed to refresh Kimi balance currency', error);
 				}
 			})
 			.finally(() => {
@@ -157,23 +157,23 @@ async function fetchBalanceCurrency(
 		});
 
 		if (!response.ok) {
-			logger.debug(`DeepSeek balance request failed with HTTP ${response.status}`);
+			logger.debug(`Kimi balance request failed with HTTP ${response.status}`);
 			return undefined;
 		}
 
-		const data = (await response.json()) as DeepSeekBalanceResponse;
+		const data = (await response.json()) as KimiBalanceResponse;
 		return chooseBalanceCurrency(data);
 	} finally {
 		clearTimeout(timeout);
 	}
 }
 
-function chooseBalanceCurrency(data: DeepSeekBalanceResponse): PricingCurrency | undefined {
+function chooseBalanceCurrency(data: KimiBalanceResponse): PricingCurrency | undefined {
 	if (!Array.isArray(data.balance_infos)) {
 		return undefined;
 	}
 
-	const infos = data.balance_infos.filter(isDeepSeekBalanceInfo);
+	const infos = data.balance_infos.filter(isKimiBalanceInfo);
 	return (
 		findCurrencyByPositiveBalance(infos, 'topped_up_balance') ??
 		findCurrencyByPositiveBalance(infos, 'total_balance') ??
@@ -182,7 +182,7 @@ function chooseBalanceCurrency(data: DeepSeekBalanceResponse): PricingCurrency |
 }
 
 function findCurrencyByPositiveBalance(
-	infos: readonly DeepSeekBalanceInfo[],
+	infos: readonly KimiBalanceInfo[],
 	key: 'total_balance' | 'topped_up_balance',
 ): PricingCurrency | undefined {
 	for (const info of infos) {
@@ -198,7 +198,7 @@ function parsePricingCurrency(value: unknown): PricingCurrency | undefined {
 	return value === 'CNY' ? value : undefined;
 }
 
-function isDeepSeekBalanceInfo(value: unknown): value is DeepSeekBalanceInfo {
+function isKimiBalanceInfo(value: unknown): value is KimiBalanceInfo {
 	return typeof value === 'object' && value !== null;
 }
 

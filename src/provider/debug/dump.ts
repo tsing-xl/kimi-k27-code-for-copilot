@@ -7,10 +7,10 @@ import { getRequestDumpEnabled } from '../../config';
 import { LANGUAGE_MODEL_CHAT_SYSTEM_ROLE } from '../../consts';
 import { safeStringify, toWellFormedString } from '../../json';
 import { logger } from '../../logger';
-import type { KimiMessage as DeepSeekMessage, KimiRequest as DeepSeekRequest } from '../../types';
+import type { KimiMessage, KimiRequest } from '../../types';
 import { parseReplayMarkerData, REPLAY_MARKER_MIME } from '../replay';
 import {
-	classifyKimiRequest as classifyDeepSeekRequest,
+	classifyKimiRequest,
 	classifyProviderRequest,
 	formatModelFields,
 	formatRequestLogLine,
@@ -35,7 +35,7 @@ let dumpWriteQueue: Promise<void> = Promise.resolve();
 const REQUEST_OBSERVATIONS_FILE = '_request-observations.jsonl';
 const HASH_WINDOW_CHARS = 2_048;
 
-type DumpEvent = 'provider-input' | 'deepseek-request';
+type DumpEvent = 'provider-input' | 'kimi-request';
 type DumpStage = 'provider-input' | 'input' | 'resolved';
 
 interface DumpContext {
@@ -102,7 +102,7 @@ interface SystemPromptSummary extends CustomizationsSummary {
 	agentTagCount: number;
 }
 
-export interface DumpDeepSeekRequestOptions {
+export interface DumpKimiRequestOptions {
 	globalStorageUri: vscode.Uri;
 	segment: ConversationSegment;
 	requestKind?: RequestKind;
@@ -144,7 +144,7 @@ export function dumpProviderInput(options: DumpProviderInputOptions): void {
 	const context = createDumpContext(
 		options.globalStorageUri,
 		options.segment,
-		'deepseek-provider-input',
+		'kimi-provider-input',
 		(providerInputDumpCounter += 1),
 		requestKind,
 	);
@@ -176,33 +176,33 @@ export function dumpProviderInput(options: DumpProviderInputOptions): void {
 }
 
 /**
- * Dump the FULL DeepSeek request payload (messages + tools) to disk verbatim
+ * Dump the FULL Kimi request payload (messages + tools) to disk verbatim
  * when debugMode is `verbose`. No truncation, no hashing - you get the
- * exact JSON that will be sent to the DeepSeek API (minus the auth header).
+ * exact JSON that will be sent to the Kimi API (minus the auth header).
  *
  * Files land under `<dump root>/<conversationSegmentId>/` so marker replay and
  * cache-lineage changes are easy to inspect across provider calls:
- *   deepseek-request-<timestamp>-NNNN.input.json     — VS Code input snapshot
- *   deepseek-request-<timestamp>-NNNN.resolved.json  — post-vision VS Code snapshot
- *   deepseek-request-<timestamp>-NNNN.json           — full request body
- *   deepseek-request-<timestamp>-NNNN.msg0.txt       — messages[0] content (system prompt)
+ *   kimi-request-<timestamp>-NNNN.input.json     — VS Code input snapshot
+ *   kimi-request-<timestamp>-NNNN.resolved.json  — post-vision VS Code snapshot
+ *   kimi-request-<timestamp>-NNNN.json           — full request body
+ *   kimi-request-<timestamp>-NNNN.msg0.txt       — messages[0] content (system prompt)
  */
-export function dumpDeepSeekRequest(
-	request: DeepSeekRequest,
-	options: DumpDeepSeekRequestOptions,
+export function dumpKimiRequest(
+	request: KimiRequest,
+	options: DumpKimiRequestOptions,
 ): void {
 	if (!getRequestDumpEnabled()) return;
 
 	const requestKind =
 		options.requestKind ??
-		classifyDeepSeekRequest({
+		classifyKimiRequest({
 			request,
 			inputMessages: options.inputMessages,
 		});
 	const context = createDumpContext(
 		options.globalStorageUri,
 		options.segment,
-		'deepseek-request',
+		'kimi-request',
 		(dumpCounter += 1),
 		requestKind,
 	);
@@ -232,7 +232,7 @@ export function dumpDeepSeekRequest(
 		await writeDumpObservation(
 			options.globalStorageUri,
 			createDumpObservation({
-				event: 'deepseek-request',
+				event: 'kimi-request',
 				context,
 				segment: options.segment,
 				paths,
@@ -341,9 +341,9 @@ function createProviderInputSnapshot(
 
 function createPipelineSnapshot(
 	stage: 'input' | 'resolved',
-	request: DeepSeekRequest,
+	request: KimiRequest,
 	messages: readonly vscode.LanguageModelChatRequestMessage[],
-	options: DumpDeepSeekRequestOptions,
+	options: DumpKimiRequestOptions,
 	context: DumpContext,
 ): object {
 	return createDumpSnapshot({
@@ -366,7 +366,7 @@ function createPipelineSnapshot(
 						stats: options.visionStats ?? null,
 					}
 				: undefined,
-		deepSeekPromptSummary: summarizeDeepSeekSystemPrompt(request.messages),
+		kimiPromptSummary: summarizeKimiSystemPrompt(request.messages),
 		messages,
 		requestOptions: options.requestOptions,
 	});
@@ -379,7 +379,7 @@ function createDumpSnapshot(options: {
 	requestKind: RequestKind;
 	model: object;
 	vision?: object;
-	deepSeekPromptSummary?: SystemPromptSummary;
+	kimiPromptSummary?: SystemPromptSummary;
 	messages: readonly vscode.LanguageModelChatRequestMessage[];
 	requestOptions: vscode.ProvideLanguageModelChatResponseOptions;
 }): object {
@@ -397,7 +397,7 @@ function createDumpSnapshot(options: {
 		hostSettings: summarizeHostSettings(),
 		vision: options.vision,
 		systemPromptSummary: summarizeVscodeSystemPrompt(options.messages),
-		deepSeekPromptSummary: options.deepSeekPromptSummary,
+		kimiPromptSummary: options.kimiPromptSummary,
 		messageStats: summarizeMessages(serializedMessages),
 		messages: serializedMessages,
 		toolStats: summarizeTools(options.requestOptions.tools),
@@ -673,9 +673,9 @@ function summarizeVscodeSystemPrompt(
 	);
 }
 
-function summarizeDeepSeekSystemPrompt(messages: readonly DeepSeekMessage[]): SystemPromptSummary {
+function summarizeKimiSystemPrompt(messages: readonly KimiMessage[]): SystemPromptSummary {
 	const message = messages[0];
-	const customizations = summarizeDeepSeekCustomizations(messages);
+	const customizations = summarizeKimiCustomizations(messages);
 	if (!message) {
 		return createSystemPromptSummary(null, null, '', customizations);
 	}
@@ -729,8 +729,8 @@ function summarizeVscodeCustomizations(
 	};
 }
 
-function summarizeDeepSeekCustomizations(
-	messages: readonly DeepSeekMessage[],
+function summarizeKimiCustomizations(
+	messages: readonly KimiMessage[],
 ): CustomizationsSummary {
 	let customizationsUpdateCountInHistory = 0;
 	let latestUserMessageIndex: number | null = null;
@@ -1008,13 +1008,13 @@ function logProviderInputDump(
 }
 
 function logRequestDump(
-	request: DeepSeekRequest,
-	options: DumpDeepSeekRequestOptions,
+	request: KimiRequest,
+	options: DumpKimiRequestOptions,
 	paths: RequestDumpPaths,
 	requestJsonLength: number,
 	requestKind: RequestKind,
 ): void {
-	const systemPromptSummary = summarizeDeepSeekSystemPrompt(request.messages);
+	const systemPromptSummary = summarizeKimiSystemPrompt(request.messages);
 	logger.debug(
 		formatRequestLogLine(
 			requestKind,
@@ -1104,5 +1104,5 @@ function getRequestDumpBaseRootUri(globalStorageUri: vscode.Uri): vscode.Uri {
 		return vscode.Uri.joinPath(globalStorageUri, 'request-dumps');
 	}
 
-	return vscode.Uri.file(join(tmpdir(), 'deepseek-request-dumps'));
+	return vscode.Uri.file(join(tmpdir(), 'kimi-request-dumps'));
 }

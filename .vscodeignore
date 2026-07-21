@@ -1,0 +1,19 @@
+# Source code (only compiled out/ is needed at runtime)
+src/
+
+# Dev tooling
+.vscode/
+node_modules/
+.oxfmtrc.json
+.oxlintrc.json
+.nvmrc
+.gitignore
+.git/
+
+# TypeScript / build artifacts
+tsconfig.json
+vscode.proposed.languageModelThinkingPart.d.ts
+dist/
+
+# Misc
+*.vsix
