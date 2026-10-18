@@ -1,4 +1,3 @@
-import { KIMI_TOOLS_LIMIT } from './provider/tools/consts';
 import type { ModelDefinition } from './types';
 
 /**
@@ -54,7 +53,7 @@ export const MODELS: ModelDefinition[] = [
 		maxInputTokens: 262144,
 		maxOutputTokens: 32768,
 		capabilities: {
-			toolCalling: KIMI_TOOLS_LIMIT,
+			toolCalling: true,
 			imageInput: true,
 			thinking: true,
 		},
@@ -73,7 +72,7 @@ export const MODELS: ModelDefinition[] = [
 		maxInputTokens: 262144,
 		maxOutputTokens: 32768,
 		capabilities: {
-			toolCalling: KIMI_TOOLS_LIMIT,
+			toolCalling: true,
 			imageInput: true,
 			thinking: true,
 		},

@@ -190,6 +190,52 @@
 			"type": "shell",
 			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.1.2.vsix",
 			"isBackground": false
+		},
+		{
+			"label": "validate-nls",
+			"type": "shell",
+			"command": "node -e \"JSON.parse(require('fs').readFileSync('package.nls.json','utf8'));JSON.parse(require('fs').readFileSync('package.nls.zh-cn.json','utf8'));console.log('NLS JSON OK')\"",
+			"isBackground": false
+		},
+		{
+			"label": "validate-nls2",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"JSON.parse(require('fs').readFileSync('package.nls.json','utf8'));JSON.parse(require('fs').readFileSync('package.nls.zh-cn.json','utf8'));console.log('NLS JSON OK')"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "validate-json",
+			"type": "shell",
+			"command": "node validate-json.cjs",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix-0.2.0",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.2.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "package-vsix-0.2.0-final",
+			"type": "shell",
+			"command": "npx vsce package --out dist/kimi-k27-code-for-copilot-0.2.0.vsix",
+			"isBackground": false
+		},
+		{
+			"label": "git-status",
+			"type": "shell",
+			"command": "git status --short",
+			"isBackground": false
+		},
+		{
+			"label": "git-commit-0.2.0",
+			"type": "shell",
+			"command": "git add -A; git commit -m 'chore(release): v0.2.0' -m 'Sync targeted upstream fixes adapted for the Kimi API (#271, #275, #282, #291): avoid Copilot BYOK activation deadlock via synchronous provider registration, stop model refresh during deactivation, add explicit empty schema for parameterless tools, remove stale 128-tool limit, and switch to max_completion_tokens (max_tokens is deprecated by Kimi).'; git log --oneline -1",
+			"isBackground": false
 		}
 	]
 }

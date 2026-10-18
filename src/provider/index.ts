@@ -22,7 +22,6 @@ export class KimiChatProvider implements vscode.LanguageModelChatProvider {
 	private readonly authManager: AuthManager;
 	private readonly globalStorageUri: vscode.Uri;
 	private readonly onDidChangeLanguageModelChatInformationEmitter = new vscode.EventEmitter<void>();
-	private isActive = true;
 
 	readonly onDidChangeLanguageModelChatInformation =
 		this.onDidChangeLanguageModelChatInformationEmitter.event;
@@ -97,32 +96,12 @@ export class KimiChatProvider implements vscode.LanguageModelChatProvider {
 			.finally(() => this.onDidChangeLanguageModelChatInformationEmitter.fire());
 	}
 
-	async prepareForDeactivate(): Promise<void> {
-		this.isActive = false;
-		this.onDidChangeLanguageModelChatInformationEmitter.fire();
-
-		// Force the host to re-pull `provideLanguageModelChatInformation` synchronously
-		// before the extension unloads. With `isActive = false` we now return [],
-		// which makes Copilot Chat drop Kimi models from the picker immediately
-		// instead of leaving stale entries behind after deactivate. The returned
-		// model list itself is unused — we only call this for its side effect.
-		try {
-			await vscode.lm.selectChatModels({ vendor: 'moonshot' });
-		} catch (error) {
-			logger.warn('Failed to refresh Kimi models during deactivate', error);
-		}
-	}
-
 	// ---- LanguageModelChatProvider ----
 
 	async provideLanguageModelChatInformation(
 		_options: vscode.PrepareLanguageModelChatModelOptions,
 		_token: vscode.CancellationToken,
 	): Promise<vscode.LanguageModelChatInformation[]> {
-		if (!this.isActive) {
-			return [];
-		}
-
 		const hasKey = await this.authManager.hasApiKey();
 		const pricingCurrency = this.balanceCurrencyResolver.getDisplayCurrency();
 		if (hasKey) {

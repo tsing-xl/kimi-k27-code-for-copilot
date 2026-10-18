@@ -1,3 +1,15 @@
+## [0.2.0] - 2026-10-18
+
+### Changed
+
+Synced targeted fixes from upstream [deepseek-v4-for-copilot](https://github.com/Vizards/deepseek-v4-for-copilot) (#271, #275, #282, #291), adapted for the Kimi API:
+
+- **Fixed BYOK activation deadlock**: Provider registration and the first model-picker refresh now run synchronously, so extension activation never blocks on `github.copilot-chat` activation. A background refresh re-queries the provider after Copilot Chat activates, and late completion is ignored once the extension is disposed.
+- **Removed model refresh during deactivation**: `deactivate()` no longer calls `vscode.lm.selectChatModels` (extension-host RPC is already closed at that point). It now only releases local resources and disposes the logger.
+- **Added explicit schemas for parameterless tools**: Tools with a missing `inputSchema` now send `{ "type": "object", "properties": {} }`. The Kimi API marks `function.parameters` as required, so parameterless tools previously produced invalid requests.
+- **Removed stale 128-tool limit**: The current Kimi Chat Completions API no longer documents a 128-function cap, so the hard request-time error and `capabilities.toolCalling` count are gone (now a plain boolean capability). Docs and settings descriptions were updated accordingly.
+- **Switched to `max_completion_tokens`**: Kimi deprecates `max_tokens` in favor of `max_completion_tokens`; requests now use the non-deprecated field (diagnostics accept both).
+
 ## [0.1.2] - 2026-07-21
 
 ### Changed

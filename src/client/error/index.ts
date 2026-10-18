@@ -2,17 +2,17 @@ import { isOfficialKimiBaseUrl } from '../../endpoint';
 import { t } from '../../i18n';
 import { safeStringify } from '../../json';
 import { API_PROVIDER_HTTP_ERROR_LINKS, MAX_DIAGNOSTIC_FIELD_LENGTH } from '../consts';
-import { getNetworkErrorCauseInfo, getNetworkErrorCode, getNetworkErrorMessage } from './network';
 import type {
-	ApiProviderId,
-	KimiRequestErrorKind,
-	ErrorActionLink,
-	ErrorActionUrls,
-	HttpErrorLinkDefinition,
-	HttpErrorLinkStatusKey,
-	RequestErrorContext,
+    ApiProviderId,
+    ErrorActionLink,
+    ErrorActionUrls,
+    HttpErrorLinkDefinition,
+    HttpErrorLinkStatusKey,
+    KimiRequestErrorKind,
+    RequestErrorContext,
 } from '../types';
-export type { KimiRequestErrorKind, ErrorActionUrls } from '../types';
+import { getNetworkErrorCauseInfo, getNetworkErrorCode, getNetworkErrorMessage } from './network';
+export type { ErrorActionUrls, KimiRequestErrorKind } from '../types';
 
 const errorActionUrlStore = (() => {
 	let current: ErrorActionUrls = {};
@@ -289,7 +289,9 @@ function getRequestDiagnosticMessage(context: RequestErrorContext): string {
 		`baseUrl=${safeStringify(context.baseUrl)}`,
 		`model=${safeStringify(request.model)}`,
 		`stream=${request.stream}`,
-		request.max_tokens !== undefined ? `maxTokens=${request.max_tokens}` : undefined,
+		request.max_completion_tokens !== undefined || request.max_tokens !== undefined
+			? `maxTokens=${request.max_completion_tokens ?? request.max_tokens}`
+			: undefined,
 		request.tool_choice ? `toolChoice=${safeStringify(request.tool_choice)}` : undefined,
 		`toolCount=${request.tools?.length ?? 0}`,
 		`messageCount=${request.messages.length}`,

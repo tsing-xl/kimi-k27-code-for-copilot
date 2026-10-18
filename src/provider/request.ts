@@ -7,9 +7,9 @@ import { t } from '../i18n';
 import type { KimiRequest } from '../types';
 import { convertMessages, countMessageChars } from './convert';
 import {
-	dumpKimiRequest,
-	type CacheDiagnosticsRecorder,
-	type CacheDiagnosticsRun,
+    dumpKimiRequest,
+    type CacheDiagnosticsRecorder,
+    type CacheDiagnosticsRun,
 } from './debug';
 import type { ReplayMarkerMetadata } from './replay';
 import { classifyKimiRequest, type RequestKind } from './routing';
@@ -70,14 +70,15 @@ export async function prepareChatRequest({
 
 	// Kimi K2.7 Code: thinking is always enabled, no reasoning_effort param.
 	// temperature/top_p are fixed by API — don't send them.
-	// tool_choice only supports 'auto' and 'none'.
+	// tool_choice is fixed to 'auto' when tools are present.
 	const request: KimiRequest = {
 		model: getApiModelId(modelInfo.id),
 		messages: kimiMessages,
 		stream: true,
 		tools,
 		tool_choice: tools && tools.length > 0 ? ('auto' as const) : undefined,
-		max_tokens: maxTokens,
+		// Kimi marks max_tokens as deprecated; prefer max_completion_tokens.
+		max_completion_tokens: maxTokens,
 		// Use conversation segment ID as cache key so Kimi can reuse
 		// cached system prompt + tools across turns in the same session.
 		prompt_cache_key: segment.segmentId,

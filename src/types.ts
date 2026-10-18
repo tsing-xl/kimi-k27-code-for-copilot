@@ -54,8 +54,9 @@ export interface KimiUsage {
  *
  * Kimi K2.7 Code API differences from typical OpenAI-compatible endpoints:
  * - No temperature / top_p (fixed by API, cannot be overridden)
- * - tool_choice only supports 'auto' | 'none' (no 'required')
+ * - tool_choice is always 'auto' when tools are present
  * - thinking is always enabled (no need to pass explicitly)
+ * - max_tokens is deprecated in favor of max_completion_tokens
  * - prompt_cache_key for cache optimization
  */
 export interface KimiRequest {
@@ -130,7 +131,7 @@ export interface ModelDefinition {
 	maxInputTokens: number;
 	maxOutputTokens: number;
 	capabilities: {
-		toolCalling: boolean | number;
+		toolCalling: boolean;
 		imageInput: boolean;
 		thinking: boolean;
 	};

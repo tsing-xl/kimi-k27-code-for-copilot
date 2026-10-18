@@ -39,8 +39,6 @@ const zh: Translations = {
 	'thinking.enabled.desc': 'K2.7 Code 始终进行深度推理',
 
 	// Request
-	'request.toolsLimitExceeded':
-		'Kimi 单次 tools 请求最多支持 {0} 个 functions，当前请求包含 {1} 个。请先用 VS Code 的 Configure Tools 关闭不常用的工具；如果正在使用实验性稳定工具列表设置，请关闭它。',
 	'request.preflightRoundLimitExceeded':
 		'实验性稳定工具列表设置已尝试 {0} 轮，仍无法得到稳定的已启用工具列表。请关闭该实验性设置，或先用 VS Code 的 Configure Tools 关闭不常用的工具。',
 	'notice.toolDrift':
@@ -80,7 +78,6 @@ const zh: Translations = {
 
 	// Extension
 	'extension.activateFailed': 'Kimi K2.7 Code 激活失败，请运行 "Kimi K2.7 Code: 显示日志" 查看详情。',
-	'extension.deactivateFailed': 'Kimi K2.7 Code 停用异常',
 	'extension.welcomeFailed': '欢迎引导加载异常',
 	'extension.openRequestDumpsFolderFailed':
 		'打开请求 dump 目录失败，请运行 "Kimi K2.7 Code: 显示日志" 查看详情。',
@@ -112,8 +109,6 @@ const en: Translations = {
 	'thinking.enabled.desc': 'K2.7 Code always reasons before responding',
 
 	// Request
-	'request.toolsLimitExceeded':
-		'Kimi supports at most {0} functions in a single `tools` request, but this request contains {1}. Use VS Code Configure Tools to disable tools you rarely use. If the experimental tool-list stabilization setting is enabled, turn it off.',
 	'request.preflightRoundLimitExceeded':
 		'Experimental tool-list stabilization tried {0} rounds but still could not get a stable enabled-tools list. Turn this experimental setting off, or use VS Code Configure Tools to disable tools you rarely use first.',
 	'notice.toolDrift':
@@ -164,7 +159,6 @@ const en: Translations = {
 
 	// Extension
 	'extension.activateFailed': 'Kimi K2.7 Code failed to activate. Run "Kimi K2.7 Code: Show Logs" for details.',
-	'extension.deactivateFailed': 'Failed to prepare Kimi K2.7 Code provider for deactivate',
 	'extension.welcomeFailed': 'Failed to show Kimi K2.7 Code welcome prompt',
 	'extension.openRequestDumpsFolderFailed':
 		'Failed to open request dumps folder. Run "Kimi K2.7 Code: Show Logs" for details.',

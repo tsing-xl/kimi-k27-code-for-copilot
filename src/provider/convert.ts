@@ -167,7 +167,12 @@ export function convertTools(
 		function: {
 			name: tool.name,
 			description: tool.description,
-			parameters: tool.inputSchema as Record<string, unknown> | undefined,
+			// Kimi requires `parameters` on every function definition;
+			// provide an explicit empty object schema for parameterless tools.
+			parameters: (tool.inputSchema ?? {
+				type: 'object',
+				properties: {},
+			}) as Record<string, unknown>,
 		},
 	}));
 }
